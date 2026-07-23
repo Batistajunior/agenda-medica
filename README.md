@@ -212,13 +212,11 @@ pip install -r requirements.txt
 Crie um arquivo `.env` na raiz do projeto:
 
 ```env
-SECRET_KEY=sua-chave-secreta
-
-DATABASE_URL=sqlite:///instance/agenda_medica.db
-
+SECRET_KEY=agenda-medica-chave-local
+DATABASE_URL=sqlite:///C:/Users/junio/Downloads/agenda-medica/instance/agenda_medica.db
 PORT=8000
-
 FLASK_DEBUG=1
+COOKIE_SECURE=0
 ```
 
 ### 7. Execute a aplicação
