@@ -1,0 +1,329 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ titulo }} | Agenda Médica
+{% endblock %}
+
+{% block styles %}
+<style>
+    .patient-form-page {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 32px 0;
+    }
+
+    .form-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .form-title {
+        margin: 0;
+        font-weight: 700;
+    }
+
+    .form-subtitle {
+        margin: 6px 0 0;
+        color: #6c757d;
+    }
+
+    .patient-form-card {
+        border: 0;
+        border-radius: 16px;
+        box-shadow: 0 4px 18px rgba(33, 37, 41, 0.08);
+    }
+
+    .patient-form-card .card-body {
+        padding: 30px;
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 22px;
+        font-size: 1.05rem;
+        font-weight: 700;
+    }
+
+    .section-title i {
+        color: #0d6efd;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 30px;
+        padding-top: 24px;
+        border-top: 1px solid #e9ecef;
+    }
+
+    @media (max-width: 767.98px) {
+        .form-header {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .form-actions {
+            flex-direction: column-reverse;
+        }
+
+        .form-actions .btn {
+            width: 100%;
+        }
+
+        .patient-form-card .card-body {
+            padding: 22px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="patient-form-page">
+
+    <div class="form-header">
+        <div>
+            <h1 class="form-title">
+                {{ titulo }}
+            </h1>
+
+            <p class="form-subtitle">
+                Informe os dados pessoais e de contato
+            </p>
+        </div>
+
+        <a
+            href="{{ url_for('pacientes.listar_pacientes') }}"
+            class="btn btn-outline-secondary"
+        >
+            <i class="bi bi-arrow-left me-2"></i>
+            Voltar
+        </a>
+    </div>
+
+    <div class="card patient-form-card">
+        <div class="card-body">
+
+            {% set nome_atual = dados.get(
+                'nome',
+                paciente.nome if paciente else ''
+            ) %}
+
+            {% set cpf_atual = dados.get(
+                'cpf',
+                paciente.cpf if paciente else ''
+            ) %}
+
+            {% set telefone_atual = dados.get(
+                'telefone',
+                paciente.telefone if paciente and paciente.telefone else ''
+            ) %}
+
+            {% set email_atual = dados.get(
+                'email',
+                paciente.email if paciente and paciente.email else ''
+            ) %}
+
+            <form
+                method="POST"
+                action="{% if paciente %}
+                    {{ url_for(
+                        'pacientes.atualizar_paciente',
+                        paciente_id=paciente.id
+                    ) }}
+                {% else %}
+                    {{ url_for('pacientes.criar_paciente') }}
+                {% endif %}"
+            >
+                <div class="section-title">
+                    <i class="bi bi-person-vcard"></i>
+                    Dados do paciente
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label
+                            for="nome"
+                            class="form-label fw-semibold"
+                        >
+                            Nome completo
+                            <span class="text-danger">*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="nome"
+                            name="nome"
+                            value="{{ nome_atual }}"
+                            placeholder="Digite o nome completo"
+                            minlength="3"
+                            maxlength="150"
+                            autocomplete="name"
+                            required
+                            autofocus
+                        >
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label
+                            for="cpf"
+                            class="form-label fw-semibold"
+                        >
+                            CPF
+                            <span class="text-danger">*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="cpf"
+                            name="cpf"
+                            value="{{ cpf_atual }}"
+                            placeholder="000.000.000-00"
+                            inputmode="numeric"
+                            maxlength="14"
+                            required
+                        >
+
+                        <div class="form-text">
+                            Informe os 11 números do CPF.
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label
+                            for="telefone"
+                            class="form-label fw-semibold"
+                        >
+                            Telefone
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="telefone"
+                            name="telefone"
+                            value="{{ telefone_atual }}"
+                            placeholder="(71) 99999-9999"
+                            inputmode="tel"
+                            maxlength="15"
+                            autocomplete="tel"
+                        >
+                    </div>
+
+                    <div class="col-12">
+                        <label
+                            for="email"
+                            class="form-label fw-semibold"
+                        >
+                            E-mail
+                        </label>
+
+                        <input
+                            type="email"
+                            class="form-control"
+                            id="email"
+                            name="email"
+                            value="{{ email_atual }}"
+                            placeholder="paciente@email.com"
+                            maxlength="150"
+                            autocomplete="email"
+                        >
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a
+                        href="{{ url_for('pacientes.listar_pacientes') }}"
+                        class="btn btn-outline-secondary"
+                    >
+                        Cancelar
+                    </a>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        <i class="bi bi-check-circle me-2"></i>
+
+                        {% if paciente %}
+                            Salvar alterações
+                        {% else %}
+                            Cadastrar paciente
+                        {% endif %}
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const campoCPF = document.getElementById("cpf");
+    const campoTelefone = document.getElementById("telefone");
+
+    function formatarCPF(valor) {
+        return valor
+            .replace(/\D/g, "")
+            .slice(0, 11)
+            .replace(/(\d{3})(\d)/, "$1.$2")
+            .replace(/(\d{3})(\d)/, "$1.$2")
+            .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+    }
+
+    function formatarTelefone(valor) {
+        const numeros = valor
+            .replace(/\D/g, "")
+            .slice(0, 11);
+
+        if (numeros.length <= 10) {
+            return numeros
+                .replace(/(\d{2})(\d)/, "($1) $2")
+                .replace(/(\d{4})(\d)/, "$1-$2");
+        }
+
+        return numeros
+            .replace(/(\d{2})(\d)/, "($1) $2")
+            .replace(/(\d{5})(\d)/, "$1-$2");
+    }
+
+    if (campoCPF) {
+        campoCPF.value = formatarCPF(
+            campoCPF.value
+        );
+
+        campoCPF.addEventListener(
+            "input",
+            function () {
+                this.value = formatarCPF(
+                    this.value
+                );
+            }
+        );
+    }
+
+    if (campoTelefone) {
+        campoTelefone.value = formatarTelefone(
+            campoTelefone.value
+        );
+
+        campoTelefone.addEventListener(
+            "input",
+            function () {
+                this.value = formatarTelefone(
+                    this.value
+                );
+            }
+        );
+    }
+</script>
+{% endblock %}

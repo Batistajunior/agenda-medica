@@ -1,0 +1,436 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Pacientes | Agenda Médica
+{% endblock %}
+
+{% block styles %}
+<style>
+    .page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .page-title {
+        margin: 0;
+        font-weight: 700;
+    }
+
+    .page-subtitle {
+        margin: 6px 0 0;
+        color: #6c757d;
+    }
+
+    .search-card,
+    .patients-card {
+        border: 0;
+        border-radius: 16px;
+        box-shadow: 0 4px 18px rgba(33, 37, 41, 0.08);
+    }
+
+    .search-card {
+        margin-bottom: 24px;
+    }
+
+    .search-card .card-body {
+        padding: 24px;
+    }
+
+    .patients-card {
+        overflow: hidden;
+    }
+
+    .patients-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .patients-table {
+        margin: 0;
+        vertical-align: middle;
+    }
+
+    .patients-table thead th {
+        padding: 14px 16px;
+        white-space: nowrap;
+        color: #495057;
+        background-color: #f8f9fa;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+    }
+
+    .patients-table tbody td {
+        padding: 16px;
+    }
+
+    .patient-avatar {
+        width: 42px;
+        height: 42px;
+        flex-shrink: 0;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #0d6efd;
+        background-color: rgba(13, 110, 253, 0.12);
+        font-size: 1.1rem;
+    }
+
+    .patient-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .patient-name {
+        font-weight: 600;
+    }
+
+    .patient-id {
+        font-size: 0.84rem;
+        color: #6c757d;
+    }
+
+    .actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 6px;
+    }
+
+    .empty-state {
+        padding: 60px 20px;
+        text-align: center;
+    }
+
+    .empty-icon {
+        width: 76px;
+        height: 76px;
+        margin: 0 auto 18px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #0d6efd;
+        background-color: rgba(13, 110, 253, 0.1);
+        font-size: 2rem;
+    }
+
+    @media (max-width: 767.98px) {
+        .page-header {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .page-header .btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="py-4">
+
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">
+                Pacientes
+            </h1>
+
+            <p class="page-subtitle">
+                Gerencie os pacientes cadastrados
+            </p>
+        </div>
+
+        <a
+            href="{{ url_for('pacientes.novo_paciente') }}"
+            class="btn btn-primary btn-lg"
+        >
+            <i class="bi bi-person-plus me-2"></i>
+            Novo paciente
+        </a>
+    </div>
+
+    <div class="card search-card">
+        <div class="card-body">
+            <form
+                method="GET"
+                action="{{ url_for('pacientes.listar_pacientes') }}"
+            >
+                <div class="row g-3 align-items-end">
+                    <div class="col-12 col-lg-9">
+                        <label
+                            for="search"
+                            class="form-label fw-semibold"
+                        >
+                            Pesquisar paciente
+                        </label>
+
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-search"></i>
+                            </span>
+
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="search"
+                                name="search"
+                                value="{{ termo }}"
+                                placeholder="Nome, CPF, telefone ou e-mail"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-3">
+                        <div class="d-grid gap-2 d-md-flex">
+                            <button
+                                type="submit"
+                                class="btn btn-primary flex-fill"
+                            >
+                                Pesquisar
+                            </button>
+
+                            <a
+                                href="{{ url_for('pacientes.listar_pacientes') }}"
+                                class="btn btn-outline-secondary"
+                            >
+                                Limpar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card patients-card">
+        <div class="patients-header">
+            <h2 class="h5 mb-1">
+                Pacientes cadastrados
+            </h2>
+
+            <span class="text-muted">
+                {{ pacientes|length }} registro(s)
+            </span>
+        </div>
+
+        {% if pacientes %}
+            <div class="table-responsive">
+                <table class="table table-hover patients-table">
+                    <thead>
+                        <tr>
+                            <th>Paciente</th>
+                            <th>CPF</th>
+                            <th>Telefone</th>
+                            <th>E-mail</th>
+                            <th class="text-end">Ações</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for paciente in pacientes %}
+                            <tr>
+                                <td>
+                                    <div class="patient-info">
+                                        <div class="patient-avatar">
+                                            <i class="bi bi-person"></i>
+                                        </div>
+
+                                        <div>
+                                            <div class="patient-name">
+                                                {{ paciente.nome }}
+                                            </div>
+
+                                            <div class="patient-id">
+                                                Código #{{ paciente.id }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td class="cpf-value">
+                                    {{ paciente.cpf }}
+                                </td>
+
+                                <td class="phone-value">
+                                    {{ paciente.telefone or 'Não informado' }}
+                                </td>
+
+                                <td>
+                                    {% if paciente.email %}
+                                        <a
+                                            href="mailto:{{ paciente.email }}"
+                                            class="text-decoration-none"
+                                        >
+                                            {{ paciente.email }}
+                                        </a>
+                                    {% else %}
+                                        <span class="text-muted">
+                                            Não informado
+                                        </span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    <div class="actions">
+                                        <a
+                                            href="{{ url_for(
+                                                'pacientes.editar_paciente',
+                                                paciente_id=paciente.id
+                                            ) }}"
+                                            class="btn btn-sm btn-outline-primary"
+                                            title="Editar paciente"
+                                        >
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+
+                                        <button
+                                            type="button"
+                                            class="btn btn-sm btn-outline-danger"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#excluirPaciente{{ paciente.id }}"
+                                            title="Excluir paciente"
+                                        >
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <div
+                                class="modal fade"
+                                id="excluirPaciente{{ paciente.id }}"
+                                tabindex="-1"
+                                aria-hidden="true"
+                            >
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h2 class="modal-title fs-5">
+                                                Excluir paciente
+                                            </h2>
+
+                                            <button
+                                                type="button"
+                                                class="btn-close"
+                                                data-bs-dismiss="modal"
+                                                aria-label="Fechar"
+                                            ></button>
+                                        </div>
+
+                                        <div class="modal-body">
+                                            Confirma a exclusão de
+                                            <strong>
+                                                {{ paciente.nome }}
+                                            </strong>?
+                                        </div>
+
+                                        <div class="modal-footer">
+                                            <button
+                                                type="button"
+                                                class="btn btn-outline-secondary"
+                                                data-bs-dismiss="modal"
+                                            >
+                                                Cancelar
+                                            </button>
+
+                                            <form
+                                                method="POST"
+                                                action="{{ url_for(
+                                                    'pacientes.excluir_paciente',
+                                                    paciente_id=paciente.id
+                                                ) }}"
+                                            >
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-danger"
+                                                >
+                                                    <i class="bi bi-trash me-1"></i>
+                                                    Excluir
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="bi bi-people"></i>
+                </div>
+
+                <h3 class="h5">
+                    Nenhum paciente encontrado
+                </h3>
+
+                <p class="text-muted mb-4">
+                    Cadastre um novo paciente ou altere a pesquisa.
+                </p>
+
+                <a
+                    href="{{ url_for('pacientes.novo_paciente') }}"
+                    class="btn btn-primary"
+                >
+                    <i class="bi bi-person-plus me-2"></i>
+                    Cadastrar paciente
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function formatarCPF(valor) {
+        const numeros = valor.replace(/\D/g, "").slice(0, 11);
+
+        return numeros.replace(
+            /(\d{3})(\d{3})(\d{3})(\d{2})/,
+            "$1.$2.$3-$4"
+        );
+    }
+
+    function formatarTelefone(valor) {
+        const numeros = valor.replace(/\D/g, "").slice(0, 11);
+
+        if (numeros.length === 11) {
+            return numeros.replace(
+                /(\d{2})(\d{5})(\d{4})/,
+                "($1) $2-$3"
+            );
+        }
+
+        if (numeros.length === 10) {
+            return numeros.replace(
+                /(\d{2})(\d{4})(\d{4})/,
+                "($1) $2-$3"
+            );
+        }
+
+        return valor;
+    }
+
+    document.querySelectorAll(".cpf-value").forEach(function (elemento) {
+        elemento.textContent = formatarCPF(
+            elemento.textContent.trim()
+        );
+    });
+
+    document.querySelectorAll(".phone-value").forEach(function (elemento) {
+        const valor = elemento.textContent.trim();
+
+        if (valor !== "Não informado") {
+            elemento.textContent = formatarTelefone(valor);
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,69 @@
+services:
+  db:
+    image: postgres:16
+    container_name: agenda_medica_db
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: agenda_medica
+      POSTGRES_USER: agenda
+      POSTGRES_PASSWORD: agenda
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U agenda -d agenda_medica"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  web:
+    container_name: agenda_medica_web
+
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    restart: unless-stopped
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+    ports:
+      - "8000:8000"
+
+    environment:
+      PORT: "8000"
+      FLASK_DEBUG: "0"
+      SECRET_KEY: "troque-esta-chave-em-producao"
+
+      DATABASE_URL: >-
+        postgresql+psycopg2://agenda:agenda@db:5432/agenda_medica
+
+      COOKIE_SECURE: "0"
+
+    command:
+      [
+        "gunicorn",
+        "--bind",
+        "0.0.0.0:8000",
+        "--workers",
+        "2",
+        "--threads",
+        "4",
+        "--timeout",
+        "120",
+        "app.main:app"
+      ]
+
+volumes:
+  postgres_data:

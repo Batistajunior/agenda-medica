@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}
+Calendário | Agenda Médica
+{% endblock %}
+
+{% block styles %}
+<link
+    href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css"
+    rel="stylesheet"
+>
+
+<style>
+    .calendario-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .calendario-title {
+        margin: 0;
+        font-weight: 700;
+        color: #212529;
+    }
+
+    .calendario-subtitle {
+        margin: 6px 0 0;
+        color: #6c757d;
+    }
+
+    .calendario-card {
+        border: 0;
+        border-radius: 16px;
+        box-shadow: 0 4px 18px rgba(33, 37, 41, 0.08);
+        padding: 24px;
+        background: #fff;
+    }
+
+    .legenda-status {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .legenda-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+        color: #495057;
+    }
+
+    .legenda-cor {
+        width: 14px;
+        height: 14px;
+        border-radius: 4px;
+    }
+
+    #calendario .fc-toolbar-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+    }
+
+    #calendario .fc-button-primary {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+
+    #calendario .fc-button-primary:not(:disabled).fc-button-active,
+    #calendario .fc-button-primary:not(:disabled):active {
+        background-color: #0a58ca;
+        border-color: #0a58ca;
+    }
+
+    @media (max-width: 767.98px) {
+        .calendario-header {
+            flex-direction: column;
+            align-items: stretch;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="py-2">
+
+    <div class="calendario-header">
+        <div>
+            <h1 class="calendario-title">
+                Calendário de Consultas
+            </h1>
+
+            <p class="calendario-subtitle">
+                Visualize todos os agendamentos de forma interativa
+            </p>
+        </div>
+
+        <a
+            href="{{ url_for('agenda.novo') }}"
+            class="btn btn-primary btn-lg"
+        >
+            <i class="bi bi-plus-circle me-2"></i>
+            Novo agendamento
+        </a>
+    </div>
+
+    <div class="calendario-card">
+        <div class="legenda-status">
+            {% for status in status_validos %}
+                <span class="legenda-item">
+                    <span
+                        class="legenda-cor"
+                        style="background-color: {{ cores_status[status] }};"
+                    ></span>
+                    {{ status }}
+                </span>
+            {% endfor %}
+        </div>
+
+        <div id="calendario"></div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core/locales/pt-br.global.min.js"></script>
+<script src="{{ url_for('static', filename='js/calendario.js') }}"></script>
+{% endblock %}

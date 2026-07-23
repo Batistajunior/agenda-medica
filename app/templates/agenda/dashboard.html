@@ -1,0 +1,770 @@
+{% extends "base.html" %}
+
+{% block title %}
+Dashboard | Agenda Médica
+{% endblock %}
+
+{% block styles %}
+<style>
+    .dashboard-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .dashboard-title {
+        margin: 0;
+        font-weight: 700;
+        color: #212529;
+    }
+
+    .dashboard-subtitle {
+        margin: 6px 0 0;
+        color: #6c757d;
+    }
+
+    .summary-card {
+        height: 100%;
+        border: 0;
+        border-radius: 16px;
+        box-shadow: 0 4px 18px rgba(33, 37, 41, 0.08);
+    }
+
+    .summary-card-body {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 22px;
+    }
+
+    .summary-label {
+        margin-bottom: 6px;
+        color: #6c757d;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .summary-value {
+        margin: 0;
+        color: #212529;
+        font-size: 2rem;
+        font-weight: 700;
+    }
+
+    .summary-icon {
+        width: 54px;
+        height: 54px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .icon-primary {
+        color: #0d6efd;
+        background-color: rgba(13, 110, 253, 0.12);
+    }
+
+    .icon-success {
+        color: #198754;
+        background-color: rgba(25, 135, 84, 0.12);
+    }
+
+    .icon-warning {
+        color: #fd7e14;
+        background-color: rgba(253, 126, 20, 0.12);
+    }
+
+    .icon-danger {
+        color: #dc3545;
+        background-color: rgba(220, 53, 69, 0.12);
+    }
+
+    .chart-card {
+        border: 0;
+        border-radius: 16px;
+        box-shadow: 0 4px 18px rgba(33, 37, 41, 0.08);
+        height: 100%;
+    }
+
+    .chart-card .card-body {
+        padding: 24px;
+    }
+
+    .chart-title {
+        margin-bottom: 16px;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #212529;
+    }
+
+    .chart-container {
+        position: relative;
+        height: 280px;
+    }
+
+    .export-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .filter-card,
+    .agenda-card {
+        border: 0;
+        border-radius: 16px;
+        box-shadow: 0 4px 18px rgba(33, 37, 41, 0.08);
+    }
+
+    .filter-card {
+        margin-bottom: 24px;
+    }
+
+    .filter-card .card-body {
+        padding: 24px;
+    }
+
+    .agenda-card {
+        overflow: hidden;
+    }
+
+    .agenda-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 20px 24px;
+        border-bottom: 1px solid #e9ecef;
+        background-color: #ffffff;
+    }
+
+    .agenda-table {
+        margin-bottom: 0;
+        vertical-align: middle;
+    }
+
+    .agenda-table thead th {
+        padding: 14px 16px;
+        white-space: nowrap;
+        color: #495057;
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+        font-size: 0.88rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+
+    .agenda-table tbody td {
+        padding: 16px;
+    }
+
+    .patient-name {
+        font-weight: 600;
+        color: #212529;
+    }
+
+    .patient-document {
+        margin-top: 3px;
+        color: #6c757d;
+        font-size: 0.85rem;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 96px;
+        padding: 7px 10px;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .status-agendado {
+        color: #664d03;
+        background-color: #fff3cd;
+    }
+
+    .status-confirmado {
+        color: #0f5132;
+        background-color: #d1e7dd;
+    }
+
+    .status-concluido {
+        color: #084298;
+        background-color: #cfe2ff;
+    }
+
+    .status-cancelado {
+        color: #842029;
+        background-color: #f8d7da;
+    }
+
+    .status-faltou {
+        color: #41464b;
+        background-color: #e2e3e5;
+    }
+
+    .empty-state {
+        padding: 56px 20px;
+        text-align: center;
+    }
+
+    .empty-state-icon {
+        width: 76px;
+        height: 76px;
+        margin: 0 auto 18px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #0d6efd;
+        background-color: rgba(13, 110, 253, 0.1);
+        font-size: 2rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 6px;
+        white-space: nowrap;
+    }
+
+    @media (max-width: 767.98px) {
+        .dashboard-header {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .dashboard-header .btn {
+            width: 100%;
+        }
+
+        .agenda-card-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="py-4">
+
+    <div class="dashboard-header">
+        <div>
+            <h1 class="dashboard-title">
+                Agenda Médica
+            </h1>
+
+            <p class="dashboard-subtitle">
+                Gerencie consultas, pacientes e horários
+            </p>
+        </div>
+
+        <a
+            href="{{ url_for('agenda.novo') }}"
+            class="btn btn-primary btn-lg"
+        >
+            <i class="bi bi-plus-circle me-2"></i>
+            Novo agendamento
+        </a>
+    </div>
+
+    <div class="row g-4 mb-4">
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card summary-card">
+                <div class="summary-card-body">
+                    <div>
+                        <div class="summary-label">
+                            Consultas hoje
+                        </div>
+
+                        <p class="summary-value">
+                            {{ total_hoje }}
+                        </p>
+                    </div>
+
+                    <div class="summary-icon icon-primary">
+                        <i class="bi bi-calendar-day"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card summary-card">
+                <div class="summary-card-body">
+                    <div>
+                        <div class="summary-label">
+                            Confirmados
+                        </div>
+
+                        <p class="summary-value">
+                            {{ total_confirmados }}
+                        </p>
+                    </div>
+
+                    <div class="summary-icon icon-success">
+                        <i class="bi bi-check-circle"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card summary-card">
+                <div class="summary-card-body">
+                    <div>
+                        <div class="summary-label">
+                            Agendados
+                        </div>
+
+                        <p class="summary-value">
+                            {{ total_agendados }}
+                        </p>
+                    </div>
+
+                    <div class="summary-icon icon-warning">
+                        <i class="bi bi-clock-history"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card summary-card">
+                <div class="summary-card-body">
+                    <div>
+                        <div class="summary-label">
+                            Cancelados
+                        </div>
+
+                        <p class="summary-value">
+                            {{ total_cancelados }}
+                        </p>
+                    </div>
+
+                    <div class="summary-icon icon-danger">
+                        <i class="bi bi-x-circle"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-12 col-lg-5">
+            <div class="card chart-card">
+                <div class="card-body">
+                    <h2 class="chart-title">
+                        Status das consultas de hoje
+                    </h2>
+                    <div class="chart-container">
+                        <canvas id="grafico-status"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-7">
+            <div class="card chart-card">
+                <div class="card-body">
+                    <h2 class="chart-title">
+                        Consultas nos últimos 7 dias
+                    </h2>
+                    <div class="chart-container">
+                        <canvas id="grafico-semanal"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card filter-card">
+        <div class="card-body">
+
+            <form
+                id="filtro-form"
+                method="GET"
+                action="{{ url_for('agenda.dashboard') }}"
+            >
+                <div class="row g-3 align-items-end">
+
+                    <div class="col-12 col-lg-4">
+                        <label
+                            for="search"
+                            class="form-label fw-semibold"
+                        >
+                            Pesquisar
+                        </label>
+
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-search"></i>
+                            </span>
+
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="search"
+                                name="search"
+                                value="{{ termo }}"
+                                placeholder="Paciente, CPF, médico..."
+                            >
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-4 col-lg-2">
+                        <label
+                            for="status"
+                            class="form-label fw-semibold"
+                        >
+                            Status
+                        </label>
+
+                        <select
+                            class="form-select"
+                            id="status"
+                            name="status"
+                        >
+                            <option value="">
+                                Todos
+                            </option>
+
+                            {% for item_status in status_validos %}
+                                <option
+                                    value="{{ item_status }}"
+                                    {% if status_selecionado == item_status %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ item_status }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-12 col-md-4 col-lg-2">
+                        <label
+                            for="data_inicio"
+                            class="form-label fw-semibold"
+                        >
+                            Data inicial
+                        </label>
+
+                        <input
+                            type="date"
+                            class="form-control"
+                            id="data_inicio"
+                            name="data_inicio"
+                            value="{{ data_inicio }}"
+                        >
+                    </div>
+
+                    <div class="col-12 col-md-4 col-lg-2">
+                        <label
+                            for="data_fim"
+                            class="form-label fw-semibold"
+                        >
+                            Data final
+                        </label>
+
+                        <input
+                            type="date"
+                            class="form-control"
+                            id="data_fim"
+                            name="data_fim"
+                            value="{{ data_fim }}"
+                        >
+                    </div>
+
+                    <div class="col-12 col-lg-2">
+                        <div class="d-grid gap-2">
+                            <button
+                                type="submit"
+                                class="btn btn-primary"
+                            >
+                                <i class="bi bi-funnel me-1"></i>
+                                Filtrar
+                            </button>
+
+                            <button
+                                type="button"
+                                id="btn-limpar"
+                                class="btn btn-outline-secondary"
+                            >
+                                Limpar
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="export-buttons">
+                            <button
+                                type="button"
+                                id="btn-export-excel"
+                                class="btn btn-outline-success btn-sm"
+                            >
+                                <i class="bi bi-file-earmark-excel me-1"></i>
+                                Exportar Excel
+                            </button>
+
+                            <button
+                                type="button"
+                                id="btn-export-pdf"
+                                class="btn btn-outline-danger btn-sm"
+                            >
+                                <i class="bi bi-file-earmark-pdf me-1"></i>
+                                Exportar PDF
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+    <div class="card agenda-card">
+
+        <div class="agenda-card-header">
+            <div>
+                <h2 class="h5 mb-1">
+                    Lista de agendamentos
+                </h2>
+
+                <span
+                    class="text-muted"
+                    id="total-registros"
+                >
+                    {{ agendamentos|length }}
+                    registro(s) encontrado(s)
+                </span>
+            </div>
+        </div>
+
+        <div
+            class="table-responsive {% if not agendamentos %}d-none{% endif %}"
+            id="tabela-wrapper"
+        >
+            <table class="table table-hover agenda-table">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Horário</th>
+                        <th>Paciente</th>
+                        <th>Médico</th>
+                        <th>Especialidade</th>
+                        <th>Convênio</th>
+                        <th>Status</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                </thead>
+
+                <tbody id="agenda-tbody">
+                    {% for agendamento in agendamentos %}
+                        <tr>
+                            <td>
+                                {{ agendamento.data.strftime('%d/%m/%Y') }}
+                            </td>
+
+                            <td>
+                                <strong>
+                                    {{ agendamento.horario.strftime('%H:%M') }}
+                                </strong>
+                            </td>
+
+                            <td>
+                                <div class="patient-name">
+                                    {{ agendamento.paciente.nome }}
+                                </div>
+
+                                <div class="patient-document">
+                                    CPF:
+                                    {{ agendamento.paciente.cpf }}
+                                </div>
+                            </td>
+
+                            <td>
+                                {{ agendamento.medico }}
+                            </td>
+
+                            <td>
+                                {{ agendamento.especialidade }}
+                            </td>
+
+                            <td>
+                                {{ agendamento.convenio or 'Particular' }}
+                            </td>
+
+                            <td>
+                                {% set status_css = agendamento.status
+                                    | lower
+                                    | replace('í', 'i')
+                                    | replace('ú', 'u')
+                                    | replace('ã', 'a')
+                                    | replace('ç', 'c')
+                                    | replace(' ', '-')
+                                %}
+
+                                <span class="status-badge status-{{ status_css }}">
+                                    {{ agendamento.status }}
+                                </span>
+                            </td>
+
+                            <td class="text-end">
+                                <div class="action-buttons">
+                                    <a
+                                        href="{{ url_for(
+                                            'agenda.detalhes',
+                                            agendamento_id=agendamento.id
+                                        ) }}"
+                                        class="btn btn-sm btn-outline-secondary"
+                                        title="Ver detalhes"
+                                        aria-label="Ver detalhes"
+                                    >
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+
+                                    <a
+                                        href="{{ url_for(
+                                            'agenda.editar',
+                                            agendamento_id=agendamento.id
+                                        ) }}"
+                                        class="btn btn-sm btn-outline-primary"
+                                        title="Editar"
+                                        aria-label="Editar"
+                                    >
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm btn-outline-danger"
+                                        title="Excluir"
+                                        aria-label="Excluir"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalExcluir{{ agendamento.id }}"
+                                    >
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div id="modals-container">
+            {% for agendamento in agendamentos %}
+                <div
+                    class="modal fade"
+                    id="modalExcluir{{ agendamento.id }}"
+                    tabindex="-1"
+                    aria-labelledby="tituloModalExcluir{{ agendamento.id }}"
+                    aria-hidden="true"
+                >
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h2
+                                    class="modal-title fs-5"
+                                    id="tituloModalExcluir{{ agendamento.id }}"
+                                >
+                                    Excluir agendamento
+                                </h2>
+
+                                <button
+                                    type="button"
+                                    class="btn-close"
+                                    data-bs-dismiss="modal"
+                                    aria-label="Fechar"
+                                ></button>
+                            </div>
+
+                            <div class="modal-body">
+                                Confirma a exclusão do agendamento de
+                                <strong>{{ agendamento.paciente.nome }}</strong>
+                                em
+                                <strong>
+                                    {{ agendamento.data.strftime('%d/%m/%Y') }}
+                                    às
+                                    {{ agendamento.horario.strftime('%H:%M') }}
+                                </strong>?
+                            </div>
+
+                            <div class="modal-footer">
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-secondary"
+                                    data-bs-dismiss="modal"
+                                >
+                                    Cancelar
+                                </button>
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for(
+                                        'agenda.excluir',
+                                        agendamento_id=agendamento.id
+                                    ) }}"
+                                >
+                                    <button
+                                        type="submit"
+                                        class="btn btn-danger"
+                                    >
+                                        <i class="bi bi-trash me-1"></i>
+                                        Excluir
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div
+            class="empty-state {% if agendamentos %}d-none{% endif %}"
+            id="agenda-empty"
+        >
+            <div class="empty-state-icon">
+                <i class="bi bi-calendar-x"></i>
+            </div>
+
+            <h3 class="h5">
+                Nenhum agendamento encontrado
+            </h3>
+
+            <p class="text-muted mb-4">
+                Não existem consultas correspondentes aos filtros
+                informados.
+            </p>
+
+            <a
+                href="{{ url_for('agenda.novo') }}"
+                class="btn btn-primary"
+            >
+                <i class="bi bi-plus-circle me-2"></i>
+                Criar agendamento
+            </a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

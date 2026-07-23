@@ -1,0 +1,363 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ titulo }} | Agenda Médica
+{% endblock %}
+
+{% block styles %}
+<style>
+    .form-page {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 32px 0;
+    }
+
+    .form-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .form-title {
+        margin: 0;
+        font-weight: 700;
+    }
+
+    .form-subtitle {
+        margin: 6px 0 0;
+        color: #6c757d;
+    }
+
+    .form-card {
+        border: 0;
+        border-radius: 16px;
+        box-shadow: 0 4px 18px rgba(33, 37, 41, 0.08);
+    }
+
+    .form-card .card-body {
+        padding: 28px;
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 20px;
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #212529;
+    }
+
+    .section-title i {
+        color: #0d6efd;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 28px;
+        padding-top: 24px;
+        border-top: 1px solid #e9ecef;
+    }
+
+    @media (max-width: 767.98px) {
+        .form-header {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .form-actions {
+            flex-direction: column-reverse;
+        }
+
+        .form-actions .btn {
+            width: 100%;
+        }
+
+        .form-card .card-body {
+            padding: 22px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-page">
+
+    <div class="form-header">
+        <div>
+            <h1 class="form-title">
+                {{ titulo }}
+            </h1>
+
+            <p class="form-subtitle">
+                Preencha os dados da consulta médica
+            </p>
+        </div>
+
+        <a
+            href="{{ url_for('agenda.dashboard') }}"
+            class="btn btn-outline-secondary"
+        >
+            <i class="bi bi-arrow-left me-2"></i>
+            Voltar
+        </a>
+    </div>
+
+    <div class="card form-card">
+        <div class="card-body">
+
+            <form
+                method="POST"
+                action="{% if agendamento %}
+                    {{ url_for(
+                        'agenda.atualizar',
+                        agendamento_id=agendamento.id
+                    ) }}
+                {% else %}
+                    {{ url_for('agenda.criar') }}
+                {% endif %}"
+            >
+
+                <div class="section-title">
+                    <i class="bi bi-person-vcard"></i>
+                    Paciente
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-12">
+                        <label
+                            for="paciente_id"
+                            class="form-label fw-semibold"
+                        >
+                            Paciente
+                            <span class="text-danger">*</span>
+                        </label>
+
+                        <select
+                            class="form-select"
+                            id="paciente_id"
+                            name="paciente_id"
+                            required
+                        >
+                            <option value="">
+                                Selecione um paciente
+                            </option>
+
+                            {% for paciente in pacientes %}
+                                <option
+                                    value="{{ paciente.id }}"
+                                    {% if agendamento
+                                        and agendamento.paciente_id == paciente.id
+                                    %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ paciente.nome }}
+                                    —
+                                    CPF {{ paciente.cpf }}
+                                </option>
+                            {% endfor %}
+                        </select>
+
+                        {% if not pacientes %}
+                            <div class="form-text text-danger">
+                                Nenhum paciente cadastrado.
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="section-title">
+                    <i class="bi bi-calendar-event"></i>
+                    Data e horário
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-12 col-md-6">
+                        <label
+                            for="data"
+                            class="form-label fw-semibold"
+                        >
+                            Data
+                            <span class="text-danger">*</span>
+                        </label>
+
+                        <input
+                            type="date"
+                            class="form-control"
+                            id="data"
+                            name="data"
+                            value="{% if agendamento and agendamento.data %}
+                                {{ agendamento.data.isoformat() }}
+                            {% endif %}"
+                            required
+                        >
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label
+                            for="horario"
+                            class="form-label fw-semibold"
+                        >
+                            Horário
+                            <span class="text-danger">*</span>
+                        </label>
+
+                        <input
+                            type="time"
+                            class="form-control"
+                            id="horario"
+                            name="horario"
+                            value="{% if agendamento and agendamento.horario %}
+                                {{ agendamento.horario.strftime('%H:%M') }}
+                            {% endif %}"
+                            required
+                        >
+                    </div>
+                </div>
+
+                <div class="section-title">
+                    <i class="bi bi-person-badge"></i>
+                    Atendimento
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-12 col-md-6">
+                        <label
+                            for="medico"
+                            class="form-label fw-semibold"
+                        >
+                            Médico
+                            <span class="text-danger">*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="medico"
+                            name="medico"
+                            value="{% if agendamento %}
+                                {{ agendamento.medico }}
+                            {% endif %}"
+                            placeholder="Ex.: Dr. João Silva"
+                            maxlength="150"
+                            required
+                        >
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label
+                            for="especialidade"
+                            class="form-label fw-semibold"
+                        >
+                            Especialidade
+                            <span class="text-danger">*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="especialidade"
+                            name="especialidade"
+                            value="{% if agendamento %}
+                                {{ agendamento.especialidade }}
+                            {% endif %}"
+                            placeholder="Ex.: Cardiologia"
+                            maxlength="120"
+                            required
+                        >
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label
+                            for="convenio"
+                            class="form-label fw-semibold"
+                        >
+                            Convênio
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="convenio"
+                            name="convenio"
+                            value="{% if agendamento %}
+                                {{ agendamento.convenio }}
+                            {% else %}
+                                Particular
+                            {% endif %}"
+                            placeholder="Ex.: Unimed"
+                            maxlength="120"
+                        >
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label
+                            for="status"
+                            class="form-label fw-semibold"
+                        >
+                            Status
+                            <span class="text-danger">*</span>
+                        </label>
+
+                        <select
+                            class="form-select"
+                            id="status"
+                            name="status"
+                            required
+                        >
+                            {% for item_status in status_validos %}
+                                <option
+                                    value="{{ item_status }}"
+                                    {% if agendamento
+                                        and agendamento.status == item_status
+                                    %}
+                                        selected
+                                    {% elif not agendamento
+                                        and item_status == 'Agendado'
+                                    %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ item_status }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a
+                        href="{{ url_for('agenda.dashboard') }}"
+                        class="btn btn-outline-secondary"
+                    >
+                        Cancelar
+                    </a>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                        {% if not pacientes %}
+                            disabled
+                        {% endif %}
+                    >
+                        <i class="bi bi-check-circle me-2"></i>
+
+                        {% if agendamento %}
+                            Salvar alterações
+                        {% else %}
+                            Criar agendamento
+                        {% endif %}
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

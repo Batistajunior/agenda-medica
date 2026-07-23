@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Entrar | Agenda Médica
+{% endblock %}
+
+{% block styles %}
+<style>
+    .login-page {
+        min-height: calc(100vh - 120px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 0;
+    }
+
+    .login-card {
+        width: 100%;
+        max-width: 440px;
+        overflow: hidden;
+    }
+
+    .login-header {
+        padding: 32px 24px;
+        color: #ffffff;
+        text-align: center;
+        background: linear-gradient(
+            135deg,
+            #0d6efd,
+            #084298
+        );
+    }
+
+    .login-icon {
+        width: 72px;
+        height: 72px;
+        margin: 0 auto 16px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(255, 255, 255, 0.18);
+        font-size: 2rem;
+    }
+
+    .login-body {
+        padding: 32px;
+        background-color: #ffffff;
+    }
+
+    .input-group-text {
+        min-width: 46px;
+        justify-content: center;
+        border-radius: 10px 0 0 10px;
+        background-color: #f8f9fa;
+    }
+
+    .input-group .form-control {
+        border-radius: 0 10px 10px 0;
+    }
+
+    .password-wrapper {
+        position: relative;
+    }
+
+    .password-wrapper .form-control {
+        padding-right: 48px;
+    }
+
+    .password-toggle {
+        position: absolute;
+        top: 50%;
+        right: 14px;
+        z-index: 5;
+        transform: translateY(-50%);
+        padding: 4px;
+        border: 0;
+        background: transparent;
+        color: #6c757d;
+        cursor: pointer;
+    }
+
+    .password-toggle:hover,
+    .password-toggle:focus {
+        color: #0d6efd;
+    }
+
+    .login-help {
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+
+    @media (max-width: 575.98px) {
+        .login-page {
+            padding: 20px 0;
+            align-items: flex-start;
+        }
+
+        .login-header {
+            padding: 26px 20px;
+        }
+
+        .login-body {
+            padding: 26px 22px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="login-page">
+    <div class="card login-card">
+
+        <div class="login-header">
+            <div class="login-icon">
+                <i class="bi bi-calendar2-heart"></i>
+            </div>
+
+            <h1 class="h3 mb-2">
+                Agenda Médica
+            </h1>
+
+            <p class="mb-0 opacity-75">
+                Acesse o sistema para gerenciar pacientes e consultas
+            </p>
+        </div>
+
+        <div class="login-body">
+
+            <form
+                method="POST"
+                action="{{ url_for('auth.autenticar') }}"
+                autocomplete="on"
+            >
+                <div class="mb-3">
+                    <label
+                        for="usuario"
+                        class="form-label fw-semibold"
+                    >
+                        Usuário
+                    </label>
+
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="bi bi-person"></i>
+                        </span>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="usuario"
+                            name="usuario"
+                            value="{{ usuario_informado or '' }}"
+                            placeholder="Digite seu usuário"
+                            autocomplete="username"
+                            maxlength="100"
+                            required
+                            autofocus
+                        >
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label
+                        for="senha"
+                        class="form-label fw-semibold"
+                    >
+                        Senha
+                    </label>
+
+                    <div class="password-wrapper">
+                        <input
+                            type="password"
+                            class="form-control"
+                            id="senha"
+                            name="senha"
+                            placeholder="Digite sua senha"
+                            autocomplete="current-password"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            class="password-toggle"
+                            id="alternarSenha"
+                            aria-label="Mostrar senha"
+                            title="Mostrar ou ocultar senha"
+                        >
+                            <i
+                                class="bi bi-eye"
+                                id="iconeSenha"
+                            ></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="d-grid mt-4">
+                    <button
+                        type="submit"
+                        class="btn btn-primary btn-lg"
+                    >
+                        <i class="bi bi-box-arrow-in-right me-2"></i>
+                        Entrar
+                    </button>
+                </div>
+            </form>
+
+            <div class="text-center mt-4 login-help">
+                <i class="bi bi-shield-check me-1"></i>
+                Acesso restrito a usuários autorizados
+            </div>
+
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const botao = document.getElementById("alternarSenha");
+        const campoSenha = document.getElementById("senha");
+        const icone = document.getElementById("iconeSenha");
+
+        if (!botao || !campoSenha || !icone) {
+            return;
+        }
+
+        botao.addEventListener("click", function () {
+            const mostrarSenha = campoSenha.type === "password";
+
+            campoSenha.type = mostrarSenha
+                ? "text"
+                : "password";
+
+            icone.classList.toggle(
+                "bi-eye",
+                !mostrarSenha
+            );
+
+            icone.classList.toggle(
+                "bi-eye-slash",
+                mostrarSenha
+            );
+
+            botao.setAttribute(
+                "aria-label",
+                mostrarSenha
+                    ? "Ocultar senha"
+                    : "Mostrar senha"
+            );
+
+            campoSenha.focus();
+        });
+    });
+</script>
+{% endblock %}
