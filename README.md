@@ -2,7 +2,7 @@
 
 Sistema web desenvolvido com **Python e Flask** para gerenciamento de pacientes, consultas médicas e agenda clínica.
 
-O projeto conta com autenticação, dashboard, API, exportação de relatórios, PostgreSQL e execução conteinerizada com Docker.
+O projeto conta com autenticação, dashboard, API, exportação de relatórios, SQLite e execução conteinerizada com Docker.
 
 ---
 
