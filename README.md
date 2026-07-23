@@ -273,12 +273,6 @@ A aplicação estará disponível em:
 http://localhost:8000
 ```
 
-O PostgreSQL estará disponível localmente na porta:
-
-```text
-5433
-```
-
 ---
 
 ## 🔑 Usuário de demonstração
