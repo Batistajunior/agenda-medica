@@ -84,7 +84,7 @@ Exemplo de resposta:
 - Flask
 - Flask-SQLAlchemy
 - SQLAlchemy
-- SQLite
+- PostgreSQL
 - Gunicorn
 - Python Dotenv
 
@@ -212,8 +212,10 @@ pip install -r requirements.txt
 Crie um arquivo `.env` na raiz do projeto:
 
 ```env
-SECRET_KEY=agenda-medica-chave-local
-DATABASE_URL=sqlite:///C:/Users/junio/Downloads/agenda-medica/instance/agenda_medica.db
+SECRET_KEY=altere-esta-chave
+
+DATABASE_URL=postgresql+psycopg2://agenda:agenda@localhost:5433/agenda_medica
+
 PORT=8000
 FLASK_DEBUG=1
 COOKIE_SECURE=0

@@ -18,13 +18,6 @@ from app.routes.pacientes import pacientes_bp
 
 
 def create_app() -> Flask:
-    """
-    Cria e configura a aplicação Flask.
-
-    A função utiliza o padrão Application Factory, permitindo
-    configurações diferentes para desenvolvimento, testes e produção.
-    """
-
     load_dotenv()
 
     app = Flask(
@@ -32,15 +25,14 @@ def create_app() -> Flask:
         instance_relative_config=True,
     )
 
-    # Garante que a pasta instance exista.
     Path(app.instance_path).mkdir(
         parents=True,
         exist_ok=True,
     )
 
-    banco_sqlite = (
+    database_path = (
         Path(app.instance_path)
-        / "agenda.db"
+        / "agenda_medica.db"
     )
 
     app.config["SECRET_KEY"] = os.getenv(
@@ -50,24 +42,11 @@ def create_app() -> Flask:
 
     app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
         "DATABASE_URL",
-        f"sqlite:///{banco_sqlite.as_posix()}",
+        f"sqlite:///{database_path.as_posix()}",
     )
 
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["JSON_SORT_KEYS"] = False
-
-    # Configurações de segurança dos cookies.
-    app.config["SESSION_COOKIE_HTTPONLY"] = True
-    app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
-
-    # Em produção com HTTPS, defina COOKIE_SECURE=1.
-    app.config["SESSION_COOKIE_SECURE"] = (
-        os.getenv(
-            "COOKIE_SECURE",
-            "0",
-        )
-        == "1"
-    )
 
     db.init_app(app)
 
@@ -77,10 +56,6 @@ def create_app() -> Flask:
 
     @app.get("/health")
     def health():
-        """
-        Verifica se a aplicação e o banco estão disponíveis.
-        """
-
         try:
             db.session.execute(
                 text("SELECT 1")
@@ -95,7 +70,7 @@ def create_app() -> Flask:
 
         except SQLAlchemyError:
             app.logger.exception(
-                "Falha ao acessar o banco no health check."
+                "Falha ao acessar o banco."
             )
 
             return jsonify(
@@ -111,14 +86,9 @@ def create_app() -> Flask:
 
     @app.errorhandler(404)
     def not_found(_error):
-        """
-        Trata páginas e recursos inexistentes.
-        """
-
         if request.path.startswith("/api/"):
             return jsonify(
                 {
-                    "success": False,
                     "message": "Recurso não encontrado.",
                 }
             ), 404
@@ -133,10 +103,6 @@ def create_app() -> Flask:
 
     @app.errorhandler(500)
     def internal_error(error):
-        """
-        Trata erros internos não capturados.
-        """
-
         db.session.rollback()
 
         app.logger.error(
@@ -148,7 +114,6 @@ def create_app() -> Flask:
         if request.path.startswith("/api/"):
             return jsonify(
                 {
-                    "success": False,
                     "message": (
                         "Não foi possível concluir "
                         "a operação."

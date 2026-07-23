@@ -1,30 +1,4 @@
 services:
-  db:
-    image: postgres:16
-    container_name: agenda_medica_db
-    restart: unless-stopped
-
-    environment:
-      POSTGRES_DB: agenda_medica
-      POSTGRES_USER: agenda
-      POSTGRES_PASSWORD: agenda
-
-    ports:
-      - "5433:5432"
-
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "pg_isready -U agenda -d agenda_medica"
-        ]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-
   web:
     container_name: agenda_medica_web
 
@@ -34,22 +8,17 @@ services:
 
     restart: unless-stopped
 
-    depends_on:
-      db:
-        condition: service_healthy
-
     ports:
       - "8000:8000"
 
     environment:
       PORT: "8000"
       FLASK_DEBUG: "0"
-      SECRET_KEY: "troque-esta-chave-em-producao"
+      SECRET_KEY: "agenda-medica-docker-secret"
+      DATABASE_URL: "sqlite:////app/instance/agenda_medica.db"
 
-      DATABASE_URL: >-
-        postgresql+psycopg2://agenda:agenda@db:5432/agenda_medica
-
-      COOKIE_SECURE: "0"
+    volumes:
+      - agenda_medica_data:/app/instance
 
     command:
       [
@@ -57,7 +26,7 @@ services:
         "--bind",
         "0.0.0.0:8000",
         "--workers",
-        "2",
+        "1",
         "--threads",
         "4",
         "--timeout",
@@ -66,4 +35,4 @@ services:
       ]
 
 volumes:
-  postgres_data:
+  agenda_medica_data:
