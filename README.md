@@ -84,7 +84,6 @@ Exemplo de resposta:
 - Flask
 - Flask-SQLAlchemy
 - SQLite
-- PostgreSQL
 - Gunicorn
 - Python Dotenv
 
